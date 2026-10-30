@@ -70,7 +70,7 @@ function Login() {
             </form>
 
             <p className="alt">
-              ¿Aún no tienes cuenta? <Link to="/login">Créala aquí</Link>
+              ¿Aún no tienes cuenta? <Link to="/registro">Créala aquí</Link>
             </p>
           </div>
         </div>
