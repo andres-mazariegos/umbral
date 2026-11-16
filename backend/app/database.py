@@ -1,21 +1,26 @@
-# Conexion a la base de datos con SQLAlchemy.
-from sqlalchemy import create_engine
+# Conexion a la base de datos (SQLite) y la sesion que usa cada peticion.
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 from .config import DATABASE_URL
 
-# check_same_thread=False es necesario para SQLite con FastAPI.
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {},
-)
+_es_sqlite = DATABASE_URL.startswith("sqlite")
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if _es_sqlite else {})
+
+if _es_sqlite:
+    @event.listens_for(engine, "connect")
+    def _ajustes_sqlite(conexion, _):
+        # Sin esto SQLite ignora las llaves foraneas y los borrados en cascada.
+        cursor = conexion.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.close()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
 def get_db():
-    """Abre una sesion de base de datos por peticion y la cierra al final."""
     db = SessionLocal()
     try:
         yield db
