@@ -3,8 +3,14 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+.pytest_cache/
+
+# Datos y secretos locales (nunca se suben)
 *.db
+*.db-wal
+*.db-shm
 .env
+.llave_dev
 
 # Node
 node_modules/
