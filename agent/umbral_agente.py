@@ -35,6 +35,7 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -220,14 +221,32 @@ def recolectar():
 
 # ----------------------------------------------------------- red
 
+# Abridor propio que solo sabe hablar http y https.
+# urllib.request.urlopen tambien abre direcciones file:// (archivos de tu
+# computadora). Con este abridor eso ya no es posible, aunque alguien cambie
+# la direccion guardada en ~/.umbral/agente.json. (Hallazgo de Semgrep, CWE-939)
+_ABRIDOR = urllib.request.OpenerDirector()
+for _manejador in (urllib.request.ProxyHandler(), urllib.request.HTTPHandler(), urllib.request.HTTPSHandler(),
+                   urllib.request.HTTPDefaultErrorHandler(), urllib.request.HTTPErrorProcessor()):
+    _ABRIDOR.add_handler(_manejador)
+
+
+def _direccion_valida(servidor):
+    """Solo acepta direcciones http:// o https:// con un servidor escrito."""
+    partes = urllib.parse.urlparse(servidor or "")
+    return partes.scheme in ("http", "https") and bool(partes.netloc)
+
+
 def _pedir(servidor, ruta, datos, llave=None):
+    if not _direccion_valida(servidor):
+        return 0, {"detail": f"La dirección «{servidor}» no es válida. Debe empezar con http:// o https://"}
     cabeceras = {"Content-Type": "application/json", "User-Agent": f"umbral-agente/{VERSION}"}
     if llave:
         cabeceras["Authorization"] = f"Bearer {llave}"
     peticion = urllib.request.Request(servidor.rstrip("/") + ruta, data=json.dumps(datos).encode("utf-8"),
                                       headers=cabeceras, method="POST")
     try:
-        with urllib.request.urlopen(peticion, timeout=25) as r:
+        with _ABRIDOR.open(peticion, timeout=25) as r:
             return r.status, json.loads(r.read().decode("utf-8") or "{}")
     except urllib.error.HTTPError as e:
         try:

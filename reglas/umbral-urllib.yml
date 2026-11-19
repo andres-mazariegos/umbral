@@ -1,0 +1,36 @@
+# Regla propia de Umbral para Semgrep.
+# Busca todas las formas en que urllib puede abrir una direccion que viene de
+# una variable. urllib acepta direcciones file:// (archivos locales), asi que
+# si esa variable la controla otra persona, podria leer archivos del equipo.
+#
+# La regla de la comunidad (dynamic-urllib-use-detected) no revisa build_opener,
+# que por defecto tambien trae el manejador de file://. Esta si.
+#
+# Uso:   semgrep scan --config reglas/umbral-urllib.yml
+rules:
+  - id: umbral-urllib-puede-abrir-archivos
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Esta llamada de urllib usa una direccion variable y puede abrir
+      direcciones file:// (archivos de la computadora). Usa un abridor que solo
+      tenga HTTPHandler y HTTPSHandler y revisa que la direccion empiece con
+      http:// o https://.
+    metadata:
+      cwe: "CWE-939: Improper Authorization in Handler for Custom URL Scheme"
+      autor: Carlos Andres Mazariegos Laguna (243790)
+    patterns:
+      - pattern-not: urllib.request.$FUNCION("...", ...)
+      - pattern-either:
+          - pattern: urllib.request.urlopen(...)
+          - pattern: urllib.request.urlretrieve(...)
+          - pattern: urllib.request.build_opener(...).open(...)
+          - patterns:
+              - pattern-either:
+                  - pattern-inside: |
+                      $ABRIDOR = urllib.request.build_opener(...)
+                      ...
+                  - pattern-inside: |
+                      $ABRIDOR = urllib.request.URLopener(...)
+                      ...
+              - pattern: $ABRIDOR.open(...)
