@@ -1,0 +1,18 @@
+/* =====================================================================
+   IMPRIMIR EL REPORTE DE UNA REVISION (fondo blanco, sin menus ni botones)
+   ===================================================================== */
+@media print {
+  body { background: #fff; color: #000; font-size: 12pt; }
+  .riel, .volver, .filtros, .revision-pie, .puerta-acciones, .puerta-giro, .puerta-so button { display: none !important; }
+  .panel { display: block; }
+  .panel-cuerpo { padding: 0; max-width: none; }
+  .cabeza h1, .cabeza h1 em, .puerta-n, .puerta-titulo b, .cambios li b { color: #000 !important; }
+  .antetitulo, .puerta-titulo small, .portero, .puerta-dentro h4 { color: #333 !important; }
+  .puerta, .cambios, .puerta-cara { background: #fff !important; }
+  .puerta { box-shadow: none; border: 1px solid #999; border-left-width: 6px; margin-bottom: 10px; break-inside: avoid; }
+  .puerta-urgente { border-left-color: #c0392b; }
+  .puerta-dentro { grid-template-columns: 1fr; animation: none; }
+  .puerta-maquina, .puerta-pasos code { background: #eee; color: #000; }
+  .puerta-pasos li::before, .nivel { color: #000 !important; }
+  .puerta-senal { color: #000; }
+}

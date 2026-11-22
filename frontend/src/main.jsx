@@ -1,15 +1,22 @@
 // Punto de entrada del frontend de Umbral.
-// Aqui arranca React y configuro las rutas de la app.
-import React from "react";
-import ReactDOM from "react-dom/client";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import App from "./App.jsx";
+// Arimo es una letra libre con las mismas medidas que Arial. Se usa cuando
+// la computadora no tiene Arial instalada (por ejemplo en Linux).
+import "@fontsource/arimo/latin-400.css";
+import "@fontsource/arimo/latin-700.css";
 import "./index.css";
+import "./imprimir.css";
+import App from "./App.jsx";
+import { ProveedorSesion } from "./sesion.jsx";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
     <BrowserRouter>
-      <App />
+      <ProveedorSesion>
+        <App />
+      </ProveedorSesion>
     </BrowserRouter>
-  </React.StrictMode>
+  </StrictMode>
 );

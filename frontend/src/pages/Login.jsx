@@ -1,84 +1,55 @@
-// Pantalla de acceso (login) de Umbral.
-// Por ahora solo guardo lo que el usuario escribe. Cuando conecte el backend,
-// aqui voy a mandar el correo y la contraseña para iniciar sesion con JWT.
+// Entrar a la cuenta.
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import LluviaCodigo from "../components/LluviaCodigo.jsx";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { api } from "../api.js";
+import { Aviso, Boton, Campo } from "../components/Basicos.jsx";
+import Portal from "../components/Portal.jsx";
+import { useSesion } from "../sesion.jsx";
 
-function Login() {
-  const [correo, setCorreo] = useState("");
-  const [password, setPassword] = useState("");
+export default function Login() {
+  const ir = useNavigate();
+  const { state } = useLocation();
+  const { setUsuario } = useSesion();
+  const [email, setEmail] = useState("");
+  const [clave, setClave] = useState("");
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
 
-  function entrar(e) {
+  const enviar = async (e) => {
     e.preventDefault();
-    // TODO: conectar con el backend (POST /api/auth/login)
-    console.log("intento de acceso:", correo);
-  }
+    setError("");
+    if (!email || !clave) return setError("Escribe tu correo y tu contraseña.");
+    setCargando(true);
+    try {
+      const r = await api("/auth/entrar", { metodo: "POST", datos: { email, clave } });
+      setUsuario(r.usuario);
+      ir(state?.volver || "/panel", { replace: true });
+    } catch (err) {
+      if (err.motivo === "sin-confirmar") {
+        const r = await api("/auth/reenviar", { metodo: "POST", datos: { email } }).catch(() => ({}));
+        return ir("/confirmar", { state: { email: email.toLowerCase(), dev: r.dev } });
+      }
+      setError(err.message);
+      setClave("");
+    } finally {
+      setCargando(false);
+    }
+  };
 
   return (
-    <>
-      <LluviaCodigo />
-
-      <div className="auth-wrap">
-        <Link to="/" style={{ textDecoration: "none", color: "var(--paper)" }}>
-          <div className="auth-brand">
-            Umbr<span className="b-green">a</span>l
-          </div>
-        </Link>
-
-        <div className="card">
-          <div className="console-bar">
-            <span className="dot"></span>
-            <span className="dot"></span>
-            <span className="dot"></span>
-            <span className="console-title">umbral — acceso</span>
-          </div>
-
-          <div className="card-body">
-            <p className="intro">
-              umbral@local:~$ <span className="c-dim">entrar</span>
-            </p>
-            <h1>Entra a tu consola</h1>
-            <p className="sub">Revisa tu equipo y consulta el historial de tus revisiones.</p>
-
-            <form onSubmit={entrar}>
-              <div className="field">
-                <label htmlFor="correo">Correo</label>
-                <input
-                  id="correo"
-                  type="email"
-                  placeholder="tucorreo@ejemplo.com"
-                  autoComplete="email"
-                  value={correo}
-                  onChange={(e) => setCorreo(e.target.value)}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="password">Contraseña</label>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <button className="btn btn-primary auth-btn" type="submit">
-                Entrar
-              </button>
-            </form>
-
-            <p className="alt">
-              ¿Aún no tienes cuenta? <Link to="/registro">Créala aquí</Link>
-            </p>
-          </div>
-        </div>
-
-        <p className="auth-foot">Umbral · por Andrés Mazariegos</p>
-      </div>
-    </>
+    <Portal titulo="Qué bueno verte" bajada="Entra para ver cómo amaneció tu computadora."
+      frase="Las puertas no se cuidan solas. Pero tampoco se necesita un experto.">
+      <Aviso tipo="bien">{state?.mensaje}</Aviso>
+      <form onSubmit={enviar} noValidate>
+        <Campo etiqueta="Correo" tipo="email" value={email} onChange={(e) => setEmail(e.target.value.trim())}
+          autoComplete="email" maxLength={254} inputMode="email" autoFocus />
+        <Campo etiqueta="Contraseña" tipo="password" value={clave} onChange={(e) => setClave(e.target.value)}
+          autoComplete="current-password" maxLength={128} />
+        <Aviso>{error}</Aviso>
+        <Boton cargando={cargando} type="submit">Entrar</Boton>
+      </form>
+      <p className="portal-alterno"><Link to="/olvide">¿Olvidaste tu contraseña?</Link></p>
+      <p className="portal-alterno">¿Primera vez? <Link to="/registro">Abre tu cuenta</Link></p>
+    </Portal>
   );
 }
-
-export default Login;
