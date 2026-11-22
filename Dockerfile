@@ -20,7 +20,7 @@ COPY --from=sitio /sitio/dist frontend/dist
 # El proceso no corre como root dentro del contenedor.
 RUN useradd --create-home umbral && mkdir -p /datos && chown -R umbral /datos /umbral
 USER umbral
-ENV UMBRAL_DATABASE_URL=sqlite:////datos/umbral.db
+# La base la pone Railway (DATABASE_URL) o docker-compose
 EXPOSE 8000
 WORKDIR /umbral/backend
 # Railway decide el puerto y lo pasa en la variable PORT; si no existe se usa 8000.
