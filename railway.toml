@@ -1,0 +1,11 @@
+# Configuracion de Railway (se lee sola al conectar el repositorio).
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# Railway revisa esta ruta antes de dar por buena una version nueva.
+healthcheckPath = "/api/salud"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

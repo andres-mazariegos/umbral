@@ -1,0 +1,29 @@
+# Para publicar Umbral en un servidor con tu dominio y HTTPS automatico.
+#   1. Copia .env.produccion.example como .env.produccion y llena los datos.
+#   2. docker compose up -d --build
+# Caddy pide y renueva solo el certificado HTTPS de tu dominio.
+services:
+  umbral:
+    build: .
+    restart: unless-stopped
+    env_file: .env.produccion
+    volumes:
+      - datos:/datos
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO:?Falta DOMINIO en el archivo .env}
+    command: caddy reverse-proxy --from ${DOMINIO} --to umbral:8000
+    volumes:
+      - caddy:/data
+    depends_on:
+      - umbral
+
+volumes:
+  datos:
+  caddy:
