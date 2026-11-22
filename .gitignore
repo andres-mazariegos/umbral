@@ -23,5 +23,5 @@ dist/
 .DS_Store
 Thumbs.db
 
-# archivo de prueba con errores a proposito
+# Archivo de prueba con errores a proposito (practica de Semgrep)
 pruebas-semgrep/
