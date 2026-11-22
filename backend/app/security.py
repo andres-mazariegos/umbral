@@ -109,6 +109,14 @@ def usuario_actual(request: Request, db: Session = Depends(get_db)) -> models.Us
     return usuario
 
 
+def usuario_admin(usuario: models.Usuario = Depends(usuario_actual)) -> models.Usuario:
+    # A quien no es administrador se le responde 404, no 403:
+    # asi ni siquiera sabe que esa seccion existe.
+    if not usuario.es_admin:
+        raise HTTPException(status_code=404, detail="Not Found")
+    return usuario
+
+
 def usuario_opcional(request: Request, db: Session = Depends(get_db)) -> models.Usuario | None:
     try:
         return usuario_actual(request, db)

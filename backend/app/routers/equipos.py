@@ -93,6 +93,14 @@ def descargar_agente():
     return FileResponse(config.RUTA_AGENTE, media_type="text/x-python", filename="umbral_agente.py")
 
 
+@router.get("/agente/descarga/windows")
+def descargar_agente_windows():
+    # Version en PowerShell: corre en cualquier Windows 10/11 sin instalar Python.
+    if not config.RUTA_AGENTE_WINDOWS.exists():
+        raise HTTPException(status_code=404, detail="El agente no está disponible en este servidor.")
+    return FileResponse(config.RUTA_AGENTE_WINDOWS, media_type="text/plain; charset=utf-8", filename="umbral-agente.ps1")
+
+
 @router.post("/agente/enlazar")
 def enlazar(datos: schemas.EnlazarIn, request: Request, db: Session = Depends(get_db)):
     security.limitar(request, "enlazar", maximo=10, segundos=600)     # frena adivinar codigos

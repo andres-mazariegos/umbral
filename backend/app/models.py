@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Index
 from sqlalchemy.orm import relationship
 
+from .config import ADMINS
 from .database import Base
 
 
@@ -38,6 +39,12 @@ class Usuario(Base):
     enlaces = relationship("Enlace", cascade="all, delete-orphan")
     revisiones = relationship("Revision", cascade="all, delete-orphan", back_populates="usuario")
     eventos = relationship("Evento", cascade="all, delete-orphan")
+
+    @property
+    def es_admin(self) -> bool:
+        # El rol no se guarda en la tabla: lo define UMBRAL_ADMINS en el servidor.
+        # Asi nadie puede volverse administrador editando su propia cuenta.
+        return (self.email or "").lower() in ADMINS
 
 
 class Pase(Base):

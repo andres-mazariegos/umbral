@@ -6,3 +6,4 @@ email-validator>=2.2
 argon2-cffi>=23.1
 PyJWT>=2.9
 psutil>=6.0
+psycopg[binary]>=3.2

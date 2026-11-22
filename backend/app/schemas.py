@@ -140,6 +140,7 @@ class UsuarioOut(BaseModel):
     nombre: str
     email: str
     creado: datetime
+    es_admin: bool = False
 
 
 # ---------- equipos y agente ----------

@@ -1,6 +1,10 @@
 # Envio de correos de Umbral.
-# Con SMTP configurado en .env el correo sale de verdad. Sin SMTP (modo
-# desarrollo) se imprime en la consola del servidor para poder probar.
+# Tres caminos, en este orden:
+#   1. Resend (API por HTTPS): el que se usa en Railway, donde SMTP esta cerrado.
+#   2. SMTP (por ejemplo Gmail con contraseña de aplicacion): util en tu computadora.
+#   3. Ninguno configurado (modo desarrollo): el correo se imprime en la consola.
+import http.client
+import json
 import smtplib
 import ssl
 from email.message import EmailMessage
@@ -11,6 +15,27 @@ from . import config
 
 def smtp_configurado() -> bool:
     return bool(config.SMTP_HOST)
+
+
+def correo_configurado() -> bool:
+    return bool(config.RESEND_API_KEY) or smtp_configurado()
+
+
+def _por_resend(destino: str, asunto: str, texto: str, html: str) -> None:
+    """Manda el correo con la API de Resend. La direccion es fija (api.resend.com) y va por HTTPS."""
+    cuerpo = json.dumps({"from": f"Umbral <{config.CORREO_REMITENTE}>", "to": [destino],
+                         "subject": asunto, "text": texto, "html": html}).encode("utf-8")
+    conexion = http.client.HTTPSConnection("api.resend.com", timeout=15, context=ssl.create_default_context())
+    try:
+        conexion.request("POST", "/emails", body=cuerpo, headers={
+            "Authorization": f"Bearer {config.RESEND_API_KEY}", "Content-Type": "application/json",
+            "User-Agent": "umbral/2.0"})
+        respuesta = conexion.getresponse()
+        detalle = respuesta.read().decode("utf-8", errors="replace")
+        if respuesta.status >= 300:
+            raise RuntimeError(f"Resend respondio {respuesta.status}: {detalle[:200]}")
+    finally:
+        conexion.close()
 
 
 def _plantilla(titulo: str, parrafos: list[str], boton: tuple[str, str] | None, codigo: str | None) -> str:
@@ -32,12 +57,16 @@ def _plantilla(titulo: str, parrafos: list[str], boton: tuple[str, str] | None, 
 
 def enviar(destino: str, asunto: str, titulo: str, parrafos: list[str],
            boton: tuple[str, str] | None = None, codigo: str | None = None) -> bool:
-    """Devuelve True si el correo salio por SMTP, False si solo se mostro en consola."""
+    """Devuelve True si el correo salio de verdad, False si solo se mostro en consola."""
     texto = "\n\n".join(parrafos)
     if codigo:
         texto += f"\n\nCódigo: {codigo}"
     if boton:
         texto += f"\n\n{boton[0]}: {boton[1]}"
+
+    if config.RESEND_API_KEY:
+        _por_resend(destino, asunto, texto, _plantilla(titulo, parrafos, boton, codigo))
+        return True
 
     if not smtp_configurado():
         print("\n" + "=" * 64)

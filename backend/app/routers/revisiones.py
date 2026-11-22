@@ -21,7 +21,7 @@ def _mia(db: Session, usuario: models.Usuario, revision_id: int) -> models.Revis
 @router.get("/estado")
 def estado():
     """Lo que el frontend necesita saber del servidor antes de iniciar sesion."""
-    return {"revision_directa": config.REVISION_LOCAL, "correo_real": emailer.smtp_configurado(), "modo_dev": config.MODO_DEV}
+    return {"revision_directa": config.REVISION_LOCAL, "correo_real": emailer.correo_configurado(), "modo_dev": config.MODO_DEV}
 
 
 @router.get("/puertos/{puerto}")

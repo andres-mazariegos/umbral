@@ -14,6 +14,7 @@ NOMBRES_EVENTO = {
     "clave_cambiada": "Cambiaste la contraseña", "sesiones_cerradas": "Cerraste todas las sesiones",
     "equipo_conectado": "Conectaste un equipo", "equipo_quitado": "Quitaste un equipo",
     "registro_repetido": "Intentaron registrar tu correo otra vez", "nombre_cambiado": "Cambiaste tu nombre",
+    "cuenta_bloqueada": "Cuenta bloqueada por intentos fallidos", "desbloqueada_por_admin": "Un administrador desbloqueó la cuenta",
 }
 
 

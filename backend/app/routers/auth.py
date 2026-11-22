@@ -40,7 +40,7 @@ def _mandar(tareas: BackgroundTasks, funcion, *args):
 
 def _extra_dev(codigo=None, token=None):
     """Solo en desarrollo y sin SMTP: devuelve el codigo para poder probar sin correo."""
-    if config.MODO_DEV and not emailer.smtp_configurado():
+    if config.MODO_DEV and not emailer.correo_configurado():
         return {"dev": {"codigo": codigo, "pase": token}}
     return {}
 
@@ -49,7 +49,7 @@ def _extra_dev(codigo=None, token=None):
 def registro(datos: schemas.RegistroIn, request: Request, tareas: BackgroundTasks, db: Session = Depends(get_db)):
     security.limitar(request, "registro", maximo=6, segundos=3600)
     respuesta = {"mensaje": "Te enviamos un código de 6 números. Revisa tu correo (y la carpeta de spam).",
-                 "correo_real": emailer.smtp_configurado()}
+                 "correo_real": emailer.correo_configurado()}
     usuario = db.query(models.Usuario).filter(models.Usuario.email == datos.email).first()
 
     if usuario and usuario.verificado:
@@ -136,6 +136,8 @@ def entrar(datos: schemas.EntrarIn, request: Request, response: Response, db: Se
         if usuario:
             security.registrar_fallo(usuario)
             security.anotar(db, request, "entrada_fallida", usuario.id)
+            if security.bloqueado(usuario):
+                security.anotar(db, request, "cuenta_bloqueada", usuario.id)
             db.commit()
         raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos.")
 

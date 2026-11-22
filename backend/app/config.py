@@ -51,7 +51,14 @@ HORAS_SESION = 12
 NOMBRE_COOKIE = "umbral_sesion"
 
 # --- Base de datos ---
-DATABASE_URL = os.getenv("UMBRAL_DATABASE_URL", f"sqlite:///{(RAIZ_BACKEND / 'umbral.db').as_posix()}")
+# En tu computadora: un archivo SQLite (backend/umbral.db).
+# En Railway: PostgreSQL. Railway entrega la direccion en DATABASE_URL.
+DATABASE_URL = (os.getenv("UMBRAL_DATABASE_URL") or os.getenv("DATABASE_URL")
+                or f"sqlite:///{(RAIZ_BACKEND / 'umbral.db').as_posix()}")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = "postgresql://" + DATABASE_URL[len("postgres://"):]
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[len("postgresql://"):]
 
 # --- Direccion publica del sitio (va dentro de los correos) ---
 URL_SITIO = os.getenv("UMBRAL_URL_SITIO", "http://localhost:8000").rstrip("/")
@@ -67,6 +74,12 @@ SMTP_USER = os.getenv("UMBRAL_SMTP_USER", "")
 SMTP_PASS = os.getenv("UMBRAL_SMTP_PASS", "")
 SMTP_TLS = _bool("UMBRAL_SMTP_TLS", "1")
 CORREO_REMITENTE = os.getenv("UMBRAL_CORREO_REMITENTE", SMTP_USER or "umbral@localhost")
+# Resend: envio por API (HTTPS). Se usa en Railway, donde el puerto SMTP esta cerrado.
+RESEND_API_KEY = os.getenv("UMBRAL_RESEND_API_KEY", "")
+
+# --- Administradores ---
+# Correos separados por coma. Solo esas cuentas ven la seccion "Administración".
+ADMINS = {c.strip().lower() for c in os.getenv("UMBRAL_ADMINS", "").split(",") if c.strip()}
 
 # --- Reglas de seguridad de la cuenta ---
 MINUTOS_CODIGO = 15            # vigencia del codigo de confirmacion
@@ -82,4 +95,5 @@ MINUTOS_ENLACE_EQUIPO = 10     # vigencia del codigo para conectar un equipo
 REVISION_LOCAL = _bool("UMBRAL_REVISION_LOCAL", "1" if MODO_DEV else "0")
 
 RUTA_AGENTE = RAIZ_PROYECTO / "agent" / "umbral_agente.py"
+RUTA_AGENTE_WINDOWS = RAIZ_PROYECTO / "agent" / "umbral-agente.ps1"
 RUTA_WEB = RAIZ_PROYECTO / "frontend" / "dist"
