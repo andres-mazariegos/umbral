@@ -1,24 +1,28 @@
+<p align="center"><img src="logo.png" width="120" alt="Umbral"></p>
+
+![Vista previa de Umbral](preview.png)
+
 # Umbral
 
-Tu computadora tiene 65,535 puertas (puertos). Umbral revisa cuáles están
-abiertas, con tu permiso, y te explica cada una en lenguaje sencillo: qué es,
-qué puede pasar y cómo cerrarla en Windows o en Linux.
+Tu computadora tiene 65,535 puertas (puertos). Umbral revisa cuÃ¡les estÃ¡n
+abiertas, con tu permiso, y te explica cada una en lenguaje sencillo: quÃ© es,
+quÃ© puede pasar y cÃ³mo cerrarla en Windows o en Linux.
 
-La idea de fondo: la seguridad informática no debería ser solo para «los que
-saben». Cualquier persona con una computadora merece entender qué pasa en ella.
+La idea de fondo: la seguridad informÃ¡tica no deberÃ­a ser solo para Â«los que
+sabenÂ». Cualquier persona con una computadora merece entender quÃ© pasa en ella.
 
-Proyecto de la materia Seguridad Informática (7.º cuatrimestre), Universidad
-Politécnica de Chiapas. Por Carlos Andrés Mazariegos Laguna (243790).
+Proyecto de la materia Seguridad InformÃ¡tica (7.Âº cuatrimestre), Universidad
+PolitÃ©cnica de Chiapas. Por Carlos AndrÃ©s Mazariegos Laguna (243790).
 
-## Qué hace
+## QuÃ© hace
 
-- Cuenta con registro, confirmación por correo, inicio de sesión y recuperación de contraseña.
-- Un agente que corre en tu equipo, pide permiso en pantalla y lee los puertos abiertos: en Linux (Kali, Ubuntu) es un archivo de Python y en Windows uno de PowerShell, así que no hay que instalar nada.
-- Cada puerto se traduce a tres niveles: **Tranquilo**, **Ojo aquí** y **Atiéndelo ya**, con pasos para cerrarlo.
-- Detecta señales de alarma: puertos típicos de herramientas de ataque, programas que corren desde carpetas temporales y programas de control remoto.
-- Compara cada revisión con la anterior y avisa qué puerta se abrió o se cerró.
+- Cuenta con registro, confirmaciÃ³n por correo, inicio de sesiÃ³n y recuperaciÃ³n de contraseÃ±a.
+- Un agente que corre en tu equipo, pide permiso en pantalla y lee los puertos abiertos: en Linux (Kali, Ubuntu) es un archivo de Python y en Windows uno de PowerShell, asÃ­ que no hay que instalar nada.
+- Cada puerto se traduce a tres niveles: **Tranquilo**, **Ojo aquÃ­** y **AtiÃ©ndelo ya**, con pasos para cerrarlo.
+- Detecta seÃ±ales de alarma: puertos tÃ­picos de herramientas de ataque, programas que corren desde carpetas temporales y programas de control remoto.
+- Compara cada revisiÃ³n con la anterior y avisa quÃ© puerta se abriÃ³ o se cerrÃ³.
 - Se adapta al celular para leer las revisiones desde cualquier lado.
-- Rol de administrador: cifras generales, cuentas (con correos tapados), desbloqueo de cuentas y bitácora de seguridad del sitio.
+- Rol de administrador: cifras generales, cuentas (con correos tapados), desbloqueo de cuentas y bitÃ¡cora de seguridad del sitio.
 
 ## Arrancarlo
 
@@ -29,38 +33,38 @@ Necesitas [Python 3.11+](https://www.python.org/downloads/) y [Node.js 20+](http
 | Linux / Kali | `./iniciar.sh` |
 | Windows (PowerShell) | `.\iniciar.ps1` |
 
-Después abre <http://localhost:8000>. La guía completa, paso a paso, está en
+DespuÃ©s abre <http://localhost:8000>. La guÃ­a completa, paso a paso, estÃ¡ en
 [docs/GUIA.md](docs/GUIA.md).
 
-## Cómo está armado
+## CÃ³mo estÃ¡ armado
 
 ```
 umbral/
-├── backend/      API en FastAPI (cuenta, equipos, revisiones, intérprete, administración)
-│   ├── app/
-│   └── tests/    pruebas de punta a punta (python -m pytest)
-├── agent/        umbral_agente.py (Linux) y umbral-agente.ps1 (Windows)
-├── reglas/       regla propia de Semgrep (CWE-939)
-├── frontend/     sitio en React + Vite
-└── docs/         guía de instalación y medidas de seguridad
+â”œâ”€â”€ backend/      API en FastAPI (cuenta, equipos, revisiones, intÃ©rprete, administraciÃ³n)
+â”‚   â”œâ”€â”€ app/
+â”‚   â””â”€â”€ tests/    pruebas de punta a punta (python -m pytest)
+â”œâ”€â”€ agent/        umbral_agente.py (Linux) y umbral-agente.ps1 (Windows)
+â”œâ”€â”€ reglas/       regla propia de Semgrep (CWE-939)
+â”œâ”€â”€ frontend/     sitio en React + Vite
+â””â”€â”€ docs/         guÃ­a de instalaciÃ³n y medidas de seguridad
 ```
 
-| Parte | Tecnología |
+| Parte | TecnologÃ­a |
 |---|---|
 | Sitio | React 19, React Router, Vite, CSS propio |
 | API | Python, FastAPI, SQLAlchemy, Pydantic |
 | Base de datos | SQLite en tu equipo, PostgreSQL en Railway |
-| Seguridad | Argon2id, JWT en cookie HttpOnly, códigos de un solo uso, límite de intentos |
-| Análisis | psutil; si no está, `ss` (Linux). En Windows, `Get-NetTCPConnection` |
+| Seguridad | Argon2id, JWT en cookie HttpOnly, cÃ³digos de un solo uso, lÃ­mite de intentos |
+| AnÃ¡lisis | psutil; si no estÃ¡, `ss` (Linux). En Windows, `Get-NetTCPConnection` |
 | Correo | Resend (API por HTTPS) o SMTP |
-| Publicación | Docker en Railway (o Docker + Caddy en un servidor propio) |
-| Análisis de código | CodeQL (GitHub) y Semgrep |
+| PublicaciÃ³n | Docker en Railway (o Docker + Caddy en un servidor propio) |
+| AnÃ¡lisis de cÃ³digo | CodeQL (GitHub) y Semgrep |
 
-Las medidas de seguridad, una por una y dónde está cada una en el código:
+Las medidas de seguridad, una por una y dÃ³nde estÃ¡ cada una en el cÃ³digo:
 [docs/SEGURIDAD.md](docs/SEGURIDAD.md).
 
 ## Uso responsable
 
-Conecta solo equipos tuyos o sobre los que tengas autorización. El agente
-únicamente lee los puertos del equipo donde lo ejecutas; no escanea otros
+Conecta solo equipos tuyos o sobre los que tengas autorizaciÃ³n. El agente
+Ãºnicamente lee los puertos del equipo donde lo ejecutas; no escanea otros
 equipos de la red.
